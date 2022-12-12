@@ -22,8 +22,11 @@ public class PlayerController : MonoBehaviour
 
     private int currentStamina;
     private Vector3 startPos;
-
+    private Transform materialBody;
     private bool isFire=false;
+    private Animator animator;
+
+    public int CurrentStamina=>currentStamina;
 
     public int MaxStamina
     {
@@ -58,6 +61,8 @@ public class PlayerController : MonoBehaviour
         startPos=transform.position;
         PlayerPrefs.SetInt("MaxStamina",maxStamina);
         PlayerPrefs.SetFloat("Speed",downForce);
+        animator=transform.GetChild(0).GetComponent<Animator>();
+
         
     }
 
@@ -77,26 +82,29 @@ public class PlayerController : MonoBehaviour
         switch (state)
         {
             case GameStates.Start:
-                //anim ıdl
                 transform.position=startPos;
                 currentStamina=0;
                 break;
             case GameStates.InGame:
-                //anim halat
+                animator.SetTrigger("Grab");
                 transform.position=ınGamePos.transform.position;
+                transform.localRotation=new Quaternion(0,0,0,0);
                 if(isFire)
                 {
                     maxStamina=PlayerPrefs.GetInt("MaxStamina");
                     currentStamina=0;
                     transform.gameObject.SetActive(true);
+                    animator.SetTrigger("Grab");
                 }
                 break;
 
             case GameStates.Succes:
                 coinManager.addLevelUpCoin();
                 transform.position=finalPos.transform.position;
+                animator.SetTrigger("Idle");
                 break;
             case GameStates.Fail:
+                animator.SetTrigger("Idle");
                 
                 //anim bomb
                 break;
@@ -108,7 +116,7 @@ public class PlayerController : MonoBehaviour
        if(GameManager.Instance.GameState==GameStates.InGame)
        {
             if(touch.phase==TouchPhase.Ended)
-                transform.position+=new Vector3(0,-downForce*.5f,0);
+                LeanTween.moveLocalY(gameObject,transform.position.y+-downForce*.5f,.1f);
                 
             if(currentStamina>=maxStamina)
             {
@@ -129,7 +137,10 @@ public class PlayerController : MonoBehaviour
             }
             Debug.Log(currentStamina); 
 
-          
+          if(currentStamina>=maxStamina-2)
+          {
+            //materialBody.GetComponent<Material>().color=Color.red;
+          }
            
         }
     }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
@@ -22,23 +23,20 @@ public class UIController : MonoBehaviour
     private GameObject succesPanel;
 
     [SerializeField]
+    private Image staminaFill;
+
+    [SerializeField]
     private TextMeshProUGUI coinText;
 
     [SerializeField]
     private CoinManager coinManager;
 
+
     void Start()
     {  
         GameManager.Instance.GameStateChanged+=OnGameStateChanged;
         coinManager.coinAdded+=OnCoinAdded;
-    }
-
-
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        InputSystem.Instance.Touch+=OnTouch;
     }
 
 
@@ -47,6 +45,7 @@ public class UIController : MonoBehaviour
         startPanel.SetActive(false);
         succesPanel.SetActive(false);
         failPanel.SetActive(false);
+        ınGamePanel.SetActive(false);
     }
 
     public void GameIsStart()
@@ -67,6 +66,17 @@ public class UIController : MonoBehaviour
     {
         player.DownForce+=.3f;
         coinManager.DecreaseCoin(10);
+    }
+    private void OnTouch(Touch touch)
+    {
+        if(GameManager.Instance.GameState==GameStates.InGame)
+        {
+            if(touch.phase==TouchPhase.Ended)
+            {
+                staminaFill.fillAmount=Mathf.InverseLerp(0f,player.MaxStamina,player.CurrentStamina);
+            }
+
+        }
     }
 
     private void OnCoinAdded()
